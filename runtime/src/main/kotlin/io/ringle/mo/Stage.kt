@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import java.util.LinkedHashSet
 import kotlin.properties.ReadWriteProperty
 
-public abstract class Stage(key: Int = 0) : Presenter<ViewGroup>(key) {
+public abstract class Stage() : Presenter<ViewGroup>() {
 
     override var ctx: Context
         get() = stageCtx ?: stage!!.ctx
@@ -226,8 +226,8 @@ public abstract class Stage(key: Int = 0) : Presenter<ViewGroup>(key) {
         super.onReleaseView()
     }
 
-    override fun onRestoreState(inState: Bundle?) {
-        super.onRestoreState(inState)
+    @CallSuper
+    open fun onRestoreState(inState: Bundle?) {
         if (presenterCount > 0) {
             return
         }
@@ -238,12 +238,14 @@ public abstract class Stage(key: Int = 0) : Presenter<ViewGroup>(key) {
             var i = 0
             while (i < len) {
                 val name = pNames[i]
-                val state = pStates[i] as Bundle?
+                val state = pStates[i] as? Bundle?
                 try {
                     val p = Class.forName(name).newInstance() as? Presenter<*>
                     if (p != null) {
                         add(p)
-                        p.onRestoreState(state)
+                        if (p is Stage) {
+                            p.onRestoreState(state)
+                        }
                     }
                 } catch (ignored: ClassNotFoundException) {
                 } catch (ignored: ClassCastException) {
@@ -264,19 +266,23 @@ public abstract class Stage(key: Int = 0) : Presenter<ViewGroup>(key) {
     }
 
     @CallSuper
-    override fun onSaveState(outState: Bundle) {
+    open fun onSaveState(outState: Bundle) {
         val presenterList = presenters.toList()
         val presenterNames = Array(presenters.size()) { i ->
             presenterList.get(i).javaClass.getName()
         }
         val presenterStates = Array(presenters.size()) { i ->
             val p = presenterList.get(i)
-            p.onSaveState(p.state)
-            p.state
+            if (p is Stage) {
+                val s = Bundle()
+                p.onSaveState(s)
+                s
+            } else {
+                null
+            }
         }
         outState.putStringArray(Mo.sKeyPresenterNames, presenterNames)
         outState.putParcelableArray(Mo.sKeyPresenterStates, presenterStates)
-        super.onSaveState(outState)
     }
 
     public fun addPresenterListener(l: PresenterListener): Boolean {

@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import kotlin.platform.platformStatic
-import kotlin.properties.Delegates
 
 public class Mo() : Fragment() {
 
@@ -88,8 +87,9 @@ public class Mo() : Fragment() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        stage.onSaveState(stage.state)
-        outState.putBundle(Mo.sKeyRootState, stage.state)
+        val rootState = Bundle()
+        stage.onSaveState(rootState)
+        outState.putBundle(Mo.sKeyRootState, rootState)
         super.onSaveInstanceState(outState)
     }
 
