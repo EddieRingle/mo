@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import io.ringle.statesman.LifecycleAdapter
 import kotlin.platform.platformStatic
 import kotlin.properties.Delegates
 
@@ -36,8 +35,6 @@ public class Mo() : Fragment() {
         }
     }
 
-    private var lifeAdapter: MoLifecycleAdapter? = null
-
     public var isCreated: Boolean = false
 
     public val stage: Stage = MoStage()
@@ -57,10 +54,6 @@ public class Mo() : Fragment() {
 
     override fun onAttach(activity: Activity?) {
         super<Fragment>.onAttach(activity)
-        if (lifeAdapter == null) {
-            lifeAdapter = MoLifecycleAdapter()
-            lifeAdapter!!.attachTo(activity!!)
-        }
         stage.attachTo(activity!!)
     }
 
@@ -81,9 +74,6 @@ public class Mo() : Fragment() {
     override fun onDetach() {
         stage.detach()
         isCreated = false
-        lifeAdapter?.target?.getApplication()?.unregisterActivityLifecycleCallbacks(lifeAdapter)
-        lifeAdapter?.mo = null
-        lifeAdapter = null
         super<Fragment>.onDetach()
     }
 
@@ -110,12 +100,6 @@ public class Mo() : Fragment() {
         }
         stage.onRestoreState(savedInstanceState?.getBundle(Mo.sKeyRootState))
         isCreated = true
-    }
-
-    class MoLifecycleAdapter() : LifecycleAdapter {
-        override var target: Activity by Delegates.notNull()
-
-        var mo: Mo? = null
     }
 
     class MoStage : Stage() {
