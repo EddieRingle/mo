@@ -1,7 +1,7 @@
 buildscript {
     ext {
         ver = [
-            project: "0.2.0",
+            project: "0.2.1",
 
             android_buildTools: "22.0.1",
             android_gradle: "1.2.3",
